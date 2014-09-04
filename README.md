@@ -21,6 +21,12 @@
 # 詳細
 ## <a name="1">ログ解析からはじめるサービス改善</a>
 ## <a name="2">ログ収集ミドルウェアFluentd徹底攻略</a>
+```
+$ knife cookbook create case02 -o cookbooks
+$ cd cookbooks/case02
+$ berks init
+```
+
 ## <a name="3">Elasticsearch入門</a>
 ## <a name="4">可視化ツールKibanaスタートガイド/a>
 
