@@ -24,5 +24,3 @@ execute "yum-update" do
     command "yum -y update"
     action :run
 end
-
-include_recipe 'td-agent::default'

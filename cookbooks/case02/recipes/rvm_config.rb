@@ -11,7 +11,7 @@ rvm_default_ruby "#{node['rvm']['app_version']}@#{node['rvm']['app_gemset']}" do
   action :create
 end
 
-bash "SetupRvm" do
+bash "rvmグループにユーザーを追加" do
  code <<-EOH
   usermod -a -G rvm vagrant
   umask 002
