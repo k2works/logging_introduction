@@ -1,0 +1,5 @@
+include_recipe 'td-agent::default'
+include_recipe 'yum'
+include_recipe 'yum-epel'
+include_recipe 'rvm::vagrant'
+include_recipe 'rvm::system'

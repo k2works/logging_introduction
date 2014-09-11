@@ -1,0 +1,61 @@
+####
+## Output descriptions:
+##
+
+# Treasure Data (http://www.treasure-data.com/) provides cloud based data
+# analytics platform, which easily stores and processes data from td-agent.
+# FREE plan is also provided.
+# @see http://docs.fluentd.org/articles/http-to-td
+#
+# This section matches events whose tag is td.DATABASE.TABLE
+<match td.*.*>
+  type tdlog
+  apikey
+
+  auto_create_table
+  buffer_type file
+  buffer_path /var/log/td-agent/buffer/td
+</match>
+
+## match tag=debug.** and dump to console
+<match debug.**>
+  type stdout
+</match>
+
+####
+## Source descriptions:
+##
+
+## built-in TCP input
+## @see http://docs.fluentd.org/articles/in_forward
+<source>
+  type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+## built-in UNIX socket input
+#<source>
+#  type unix
+#</source>
+
+
+## live debugging agent
+<source>
+  type debug_agent
+  bind 127.0.0.1
+  port 24230
+</source>
+
+<match log.**>
+  type elasticsearch
+  logstash_format true
+  logstash_prefix demo-log
+  hosts localhost:9200
+  type_name application-log
+  buffer_type memory
+  buffer_chunk_limit 1m
+  buffer_queue_limit 128
+  flush_interval 2s
+  retry_limit 17
+</match>
