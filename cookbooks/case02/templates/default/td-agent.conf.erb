@@ -1,0 +1,113 @@
+####
+## Output descriptions:
+##
+
+# Treasure Data (http://www.treasure-data.com/) provides cloud based data
+# analytics platform, which easily stores and processes data from td-agent.
+# FREE plan is also provided.
+# @see http://docs.fluentd.org/articles/http-to-td
+#
+# This section matches events whose tag is td.DATABASE.TABLE
+<match td.*.*>
+  type tdlog
+  apikey
+
+  auto_create_table
+  buffer_type file
+  buffer_path /var/log/td-agent/buffer/td
+</match>
+
+## match tag=debug.** and dump to console
+<match debug.**>
+  type stdout
+</match>
+
+####
+## Source descriptions:
+##
+
+## built-in TCP input
+## @see http://docs.fluentd.org/articles/in_forward
+<source>
+  type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+## built-in UNIX socket input
+#<source>
+#  type unix
+#</source>
+
+
+## live debugging agent
+<source>
+  type debug_agent
+  bind 127.0.0.1
+  port 24230
+</source>
+
+<source>
+  type syslog
+  port 5140
+  bind 0.0.0.0
+  tag system
+  types syslog
+</source>
+
+<source>
+  type tail
+  path /var/log/messages
+  tag system.messages
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1410421801.pos
+</source>
+
+<source>
+  type tail
+  path /var/log/secure
+  tag system.secure
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1410422573.pos
+</source>
+
+<match system.*>
+  type stdout
+</match>
+
+<source>
+  type tail
+  path /var/log/httpd/access.log
+  tag httpd.access
+  format apache2
+  time_format %d/%b/%Y:%H:%M:%S %z
+  pos_file /tmp/fluentd--1410430987.pos
+</source>
+
+<source>
+  type tail
+  path /var/log/httpd/error.log
+  tag httpd.error
+  format apache2
+  time_format %d/%b/%Y:%H:%M:%S %z
+  pos_file /tmp/fluentd--1410431018.pos
+</source>
+
+<match httpd.*>
+  type stdout
+</match>
+
+<source>
+  type tail
+  path /var/log/mysqld.log
+  tag db.mysqld
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1410430902.pos
+</source>
+
+<match db.*>
+  type stdout
+</match>

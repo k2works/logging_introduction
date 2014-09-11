@@ -5,3 +5,5 @@ metadata
 cookbook "yum-epel"
 cookbook 'td-agent', git: 'https://github.com/treasure-data/chef-td-agent.git'
 cookbook 'rvm', github: 'fnichol/chef-rvm'
+cookbook 'apache2'
+cookbook 'mysql'

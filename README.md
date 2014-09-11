@@ -22,9 +22,13 @@
 ## <a name="1">ログ解析からはじめるサービス改善</a>
 ## <a name="2">ログ収集ミドルウェアFluentd徹底攻略</a>
 ```
-$ knife cookbook create case02 -o cookbooks
 $ cd cookbooks/case02
-$ berks init
+$ vagrant up
+$ vagrant ssh
+$ echo '{"message":"Hello World."}' | /usr/lib64/fluent/ruby/bin/fluent-cat debug.test
+$ tail /var/log/td-agent/td-agent.log
+・・・
+4-09-11 09:07:48 +0000 debug.test: {"message":"Hello World."}
 ```
 
 ## <a name="3">Elasticsearch入門</a>
@@ -36,3 +40,5 @@ $ berks init
 + [treasure-data/chef-td-agent](https://github.com/treasure-data/chef-td-agent)
 + [elasticsearch/cookbook-elasticsearch](https://github.com/elasticsearch/cookbook-elasticsearch.git)
 + [lusis/chef-kibana](https://github.com/lusis/chef-kibana)
++ [fluentd-ui](https://github.com/fluent/fluentd-ui)
++ [td-agentのファイル読み込み設定](http://qiita.com/saicologic/items/8879a277a5c8ead1269f)

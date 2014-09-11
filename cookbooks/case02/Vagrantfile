@@ -31,7 +31,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       chef.run_list = %w[
         recipe[logging-introduction-case02::default]
         recipe[logging-introduction-case02::base]
+        recipe[logging-introduction-case02::app]
+        recipe[logging-introduction-case02::app_config]
         recipe[logging-introduction-case02::rvm_config]
+        recipe[logging-introduction-case02::fluentd_config]
         recipe[logging-introduction-case02::fluentd-ui]
       ]
     end

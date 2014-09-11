@@ -1,9 +1,3 @@
-%w{libyaml-devel}.each do |pkg|
-  package pkg do
-    action :install
-  end
-end
-
 rvm_ruby "#{node['rvm']['app_version']}" do
   action :install
 end
@@ -15,4 +9,12 @@ end
 
 rvm_default_ruby "#{node['rvm']['app_version']}@#{node['rvm']['app_gemset']}" do
   action :create
+end
+
+bash "rvmグループにユーザーを追加" do
+ code <<-EOH
+  usermod -a -G rvm vagrant
+  umask 002
+  source /etc/profile.d/rvm.sh
+  EOH
 end
