@@ -8,7 +8,7 @@
 |:---------------|:-------------|:------------|
 | OS X           |10.8.5        |             |
 | vagrant   　　　|1.6.3         |             |
-| td-agent  　　　|         |             |
+| fluentd  　　　 |0.10.5         |             |
 | Elasticsearch  　　　|         |             |
 | kibana    　　　|         |             |
 
@@ -93,7 +93,7 @@ td-agent設定
 fluentd-uiインストール・デーモン設定
 
 ### Fluentdの設定ファイル
-<system>ディレクティブ
+systemディレクティブ
 
 ```
 <system>
@@ -108,7 +108,7 @@ fluentd-uiインストール・デーモン設定
 </system>
 ```
 
-<source>ディレクティブ
+sourceディレクティブ
 
 ```
 <source>
@@ -128,7 +128,7 @@ fluentd-uiインストール・デーモン設定
 </source>
 ```
 
-<match>ディレクティブ
+matchディレクティブ
 
 ```
 # systemにマッチするタグをFluentdの標準出力ログに出力する設定
@@ -137,7 +137,7 @@ fluentd-uiインストール・デーモン設定
 </match>
 ```
 
-<include>ディレクティブ
+includeディレクティブ
 
 ```
 # 絶対パスでの記述
