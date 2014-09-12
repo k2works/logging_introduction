@@ -73,6 +73,41 @@
   pos_file /tmp/fluentd--1410422573.pos
 </source>
 
+<source>
+  type tail
+  path /var/log/httpd/access.log
+  tag httpd.access
+  format apache2
+  time_format %d/%b/%Y:%H:%M:%S %z
+  pos_file /tmp/fluentd--1410430987.pos
+</source>
+
+<source>
+  type tail
+  path /var/log/httpd/error.log
+  tag httpd.error
+  format apache2
+  time_format %d/%b/%Y:%H:%M:%S %z
+  pos_file /tmp/fluentd--1410431018.pos
+</source>
+
+<source>
+  type tail
+  path /var/log/mysqld.log
+  tag db.mysqld
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1410430902.pos
+</source>
+
 <match system.*>
+  type stdout
+</match>
+
+<match httpd.*>
+  type stdout
+</match>
+
+<match db.*>
   type stdout
 </match>

@@ -21,7 +21,9 @@
 # 詳細
 ## <a name="1">ログ解析からはじめるサービス改善</a>
 ## <a name="2">ログ収集ミドルウェアFluentd徹底攻略</a>
-```
+### td-agent動作確認
+
+```bash
 $ cd cookbooks/case02
 $ vagrant up
 $ vagrant ssh
@@ -29,6 +31,127 @@ $ echo '{"message":"Hello World."}' | /usr/lib64/fluent/ruby/bin/fluent-cat debu
 $ tail /var/log/td-agent/td-agent.log
 ・・・
 4-09-11 09:07:48 +0000 debug.test: {"message":"Hello World."}
+```
+### fluentd-uiを使う
+
+```bash
+$ sudo /etc/init.d/fluentd-ui start
+```
+_http://192.168.33.10:9292/_にアクセスする。
+
+![001](https://farm6.staticflickr.com/5572/15189089586_fca44d5033.jpg)
+
+アカウント名:admin パスワード:changeme
+
+![002](https://farm6.staticflickr.com/5564/15025542317_80f1b430b8.jpg)
+
+td-agentをセットアップを選択
+
+![003](https://farm4.staticflickr.com/3886/15025326789_a3c2190afa.jpg)
+
+作成
+
+![004](https://farm4.staticflickr.com/3905/15025326899_562b7ae735.jpg)
+
+
+### クックブックの構成
+
+_cookbooks/case02/Vagrantfile_
+
+```ruby
+chef.run_list = %w[
+  recipe[logging-introduction-case02::default]
+  recipe[logging-introduction-case02::base]
+  recipe[logging-introduction-case02::app]
+  recipe[logging-introduction-case02::app_config]
+  recipe[logging-introduction-case02::rvm_config]
+  recipe[logging-introduction-case02::fluentd_config]
+  recipe[logging-introduction-case02::fluentd-ui]
+]
+```
+
+#### cookbooks/case02/recipes/default.rb
+仮想マシン共通セットアップ
+
+#### cookbooks/case02/recipes/base.rb
+td-agentインストール  
+その他必要なパッケージ
+
+#### cookbooks/case02/recipes/app.rb
+Webサーバー・DBサーバーインストール
+
+#### cookbooks/case02/recipes/app_config.rb
+Webサーバー・DBサーバー設定
+
+#### cookbooks/case02/recipes/rvm_config.rb
+rvm設定
+
+#### cookbooks/case02/recipes/fluentd_config.rb
+td-agent設定
+
+#### cookbooks/case02/recipes/fluentd-ui.rb
+fluentd-uiインストール・デーモン設定
+
+### Fluentdの設定ファイル
+<system>ディレクティブ
+
+```
+<system>
+ # ログ出力レベルを設定(trace, debug,info,warn,error,fatal)
+ log_level info
+ # 連続した同一エラー出力を抑制する
+ suppress_repeated_stacktrace true
+ # 指定時間内の同一エラー出力を制御する
+ emit_error_log_interval              60s
+ # 起動時に設定ファイルの標準ログ出力を制御する
+ suppress_config_dump             true
+</system>
+```
+
+<source>ディレクティブ
+
+```
+<source>
+  # プラグインを指定
+  type tail
+  # 読み込むログファイルを指定
+  path /var/log/messages
+  # タグ指定
+  ## Fluentdプラグイン間でメッセージをルーティングする際の識別に利用
+  tag system.messages
+  # ログフォーマット定義
+  ## 正規表現,apache,apache2,nginx,syslog,tsv,csv,ltsv,json,
+  ## none(行全体をmessageキーの値として取り込む場合)のいづれかを指定
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1410421801.pos
+</source>
+```
+
+<match>ディレクティブ
+
+```
+# systemにマッチするタグをFluentdの標準出力ログに出力する設定
+<match system.*>
+  type stdout
+</match>
+```
+
+<include>ディレクティブ
+
+```
+# 絶対パスでの記述
+include /path/to/config.conf
+
+# 相対パスで記述する場合には、呼び出し元の設定ファイルが
+# 置かれたディレクトリを起点としてファイルを読み込みます
+include extra.conf
+
+# 複数ファイルの読み込みはワイルドカード指定を使います
+include config.d/*.conf
+
+# 外部URLから設定を読み込みます
+include http://example.com/fluentd.conf
 ```
 
 ## <a name="3">Elasticsearch入門</a>
