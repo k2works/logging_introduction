@@ -1,3 +1,14 @@
+<system>
+ # ログ出力レベルを設定(trace, debug,info,warn,error,fatal)
+ log_level info
+ # 連続した同一エラー出力を抑制する
+ suppress_repeated_stacktrace true
+ # 指定時間内の同一エラー出力を制御する
+ emit_error_log_interval              60s
+ # 起動時に設定ファイルの標準ログ出力を制御する
+ suppress_config_dump             true
+</system>
+
 ####
 ## Output descriptions:
 ##
@@ -56,9 +67,16 @@
 </source>
 
 <source>
+  # プラグインを指定
   type tail
+  # 読み込むログファイルを指定
   path /var/log/messages
+  # タグ指定
+  ## Fluentdプラグイン間でメッセージをルーティングする際の識別に利用
   tag system.messages
+  # ログフォーマット定義
+  ## 正規表現,apache,apache2,nginx,syslog,tsv,csv,ltsv,json,
+  ## none(行全体をmessageキーの値として取り込む場合)のいづれかを指定
   format syslog
   time_format %b %d %H:%M:%S
   pos_file /tmp/fluentd--1410421801.pos
@@ -72,10 +90,6 @@
   time_format %b %d %H:%M:%S
   pos_file /tmp/fluentd--1410422573.pos
 </source>
-
-<match system.*>
-  type stdout
-</match>
 
 <source>
   type tail
@@ -95,10 +109,6 @@
   pos_file /tmp/fluentd--1410431018.pos
 </source>
 
-<match httpd.*>
-  type stdout
-</match>
-
 <source>
   type tail
   path /var/log/mysqld.log
@@ -107,6 +117,14 @@
   time_format %b %d %H:%M:%S
   pos_file /tmp/fluentd--1410430902.pos
 </source>
+# systemにマッチするタグをFluentdの標準出力ログに出力する設定
+<match system.*>
+  type stdout
+</match>
+
+<match httpd.*>
+  type stdout
+</match>
 
 <match db.*>
   type stdout

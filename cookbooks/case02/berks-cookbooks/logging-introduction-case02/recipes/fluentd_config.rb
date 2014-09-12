@@ -11,6 +11,24 @@
   end
 end
 
+# Webサーバ関連
+%w{
+  /var/log/httpd
+}.each do |dir_path|
+  directory dir_path do
+    group "td-agent"
+    mode '0650'
+    only_if { ::File.exists?(dir_path) }
+  end
+end
+
+# DBサーバ関連
+group "mysql" do
+  action :modify
+  members "td-agent"
+  append true
+end
+
 # 設定ファイル
 template "/etc/td-agent/td-agent.conf" do
   source "td-agent.conf.erb"
