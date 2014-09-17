@@ -8,8 +8,9 @@
 |:---------------|:-------------|:------------|
 | OS X           |10.8.5        |             |
 | vagrant   　　　|1.6.3         |             |
-| td-agent  　　　|         |             |
-| Elasticsearch  　　　|         |             |
+| fluentd  　　　 |0.10.5         |             |
+| Elasticsearch  |1.3.2         |             |
+| JDK            |1.7.0         |             |
 | kibana    　　　|         |             |
 
 # 構成
@@ -93,7 +94,7 @@ td-agent設定
 fluentd-uiインストール・デーモン設定
 
 ### Fluentdの設定ファイル
-<system>ディレクティブ
+systemディレクティブ
 
 ```
 <system>
@@ -108,7 +109,7 @@ fluentd-uiインストール・デーモン設定
 </system>
 ```
 
-<source>ディレクティブ
+sourceディレクティブ
 
 ```
 <source>
@@ -128,7 +129,7 @@ fluentd-uiインストール・デーモン設定
 </source>
 ```
 
-<match>ディレクティブ
+matchディレクティブ
 
 ```
 # systemにマッチするタグをFluentdの標準出力ログに出力する設定
@@ -137,7 +138,7 @@ fluentd-uiインストール・デーモン設定
 </match>
 ```
 
-<include>ディレクティブ
+includeディレクティブ
 
 ```
 # 絶対パスでの記述
@@ -155,6 +156,291 @@ include http://example.com/fluentd.conf
 ```
 
 ## <a name="3">Elasticsearch入門</a>
+### 起動の確認
+```bash
+$ cd cookbooks/case03
+$ vagrant up
+$ vagrant ssh
+$ $ curl -XGET http://localhost:9200/
+{
+  "ok" : true,
+  "status" : 200,
+  "name" : "case01",
+  "version" : {
+    "number" : "0.90.12",
+    "build_hash" : "26feed79983063ae83bfa11bd4ce214b1f45c884",
+    "build_timestamp" : "2014-02-25T15:38:23Z",
+    "build_snapshot" : false,
+    "lucene_version" : "4.6"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+### クラスタの状態を確認
+```bash
+$ curl -XGET http://localhost:9200/_cluster/health?pretty
+{
+  "cluster_name" : "elasticsearch",
+  "status" : "green",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 0,
+  "active_shards" : 0,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 0
+}
+```
+### 設定
+#### 環境変数
+
+_cookbooks/case03/berks-cookbooks/elasticsearch/templates/default/elasticsearch-env.sh.erb_  
+
+#### システム設定
+ファイルディスクリプタ
+```bash
+$ cat /etc/security/limits.d/10-elasticsearch.conf
+elasticsearch     -    nofile    64000
+elasticsearch     -    memlock   unlimited
+```
+
+#### Elasticsearchの設定
+
+_cookbooks/case03/berks-cookbooks/elasticsearch/templates/default/elasticsearch.yml.erb_
+
+
+### インデックスとデータの操作
+インデックスの作成
+
+```bash
+$ curl -XPOST http://localhost:9200/test_index
+{"ok":true,"acknowledged":true}
+```
+
+データの取り込み
+
+```bash
+$ curl -XPUT http://localhost:9200/test_index/apache_log/1 -d '
+{
+"host":"localhost",
+"timestamp": "06/May/2014:06:11:48 +0000",
+"verb": "GET",
+"request": "/category/finace",
+"httpversion": "1.1",
+"response": "200",
+"bytes": "51"
+}
+'
+{"ok":true,"_index":"test_index","_type":"apache_log","_id":"1","_version":1}
+```
+
+データの削除
+
+```bash
+$ curl -XDELETE http://localhost:9200/test_index/apache_log/1
+{"ok":true,"found":true,"_index":"test_index","_type":"apache_log","_id":"1","_version":2}
+```
+
+### 検索
+
+全件検索
+
+```bash
+$ curl -XGET http://localhost:9200/test_index/_search -d '
+> {
+> "query" : {
+> "match_all" : {}
+> }
+> }
+> '
+{"took":65,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":1,"max_score":1.0,"hits":[{"_index":"test_index","_type":"apache_log","_id":"1","_score":1.0, "_source" :
+{
+"host":"localhost",
+"timestamp": "06/May/2014:06:11:48 +0000",
+"verb": "GET",
+"request": "/category/finace",
+"httpversion": "1.1",
+"response": "200",
+"bytes": "51"
+}
+}]}}
+```
+
+query string query
+
+```bash
+$ curl -XGET http://localhost:9200/test_index/_search -d '
+> {
+> "query" : {
+> "query_string" : {
+> "query" : "request:/category/finace AND response:200"
+> }
+> }
+> }
+> '
+{"took":72,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":1,"max_score":1.0253175,"hits":[{"_index":"test_index","_type":"apache_log","_id":"1","_score":1.0253175, "_source" :
+{
+"host":"localhost",
+"timestamp": "06/May/2014:06:11:48 +0000",
+"verb": "GET",
+"request": "/category/finace",
+"httpversion": "1.1",
+"response": "200",
+"bytes": "51"
+}
+}]}}
+```
+
+ファセット
+
+```bash
+$ curl -XGET http://localhost:9200/test_index/_search -d '
+> {
+> "query" : {
+> "match_all" : {}
+> },
+> "facets" : {
+> "request_facet" : {
+> "terms" : {
+> "field" : "request",
+> "size" : 10
+> }
+> }
+> }
+> }
+> '
+{"took":26,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":1,"max_score":1.0,"hits":[{"_index":"test_index","_type":"apache_log","_id":"1","_score":1.0, "_source" :
+{
+"host":"localhost",
+"timestamp": "06/May/2014:06:11:48 +0000",
+"verb": "GET",
+"request": "/category/finace",
+"httpversion": "1.1",
+"response": "200",
+"bytes": "51"
+}
+}]},"facets":{"request_facet":{"_type":"terms","missing":0,"total":2,"other":0,"terms":[{"term":"finace","count":1},{"term":"category","count":1}]}}}
+```
+
+ファセットタイプ
+
+| タイプ     | 説明    |
+|:---------------|:-------------|
+| terms     | インデックスお値ごとにドキュメント数を集計       |
+| range     | インデックスの値を元に指定された範囲ごとにドキュメント数を集計     |
+| histogram | インデックスの数値データを元に指定された間隔ごとにドキュメント数を集計       |
+| statistical    |  インデックスの数値フィールドの統計値[min,max,ドキュメント数]       |
+| query     | 指定されたクエリのドキュメント数を集計       |
+
+インデックスの削除
+
+```bash
+$ curl -XDELETE http://localhost:9200/test_index
+{"ok":true,"acknowledged":true}
+```
+
+### マッピング定義
+
+マッピングの指定
+
+```bash
+$ curl -XPUT http://localhost:9200/test_index -d '
+> {
+> "mappings": {
+> "apache_log": {
+> "properties": {
+> "request": {
+> "type": "string",
+> "index": "not_analyzed"
+> }
+> }
+> }
+> }
+> }
+> '
+```
+
+マッピングの確認
+
+```bash
+$ curl -XGET http://localhost:9200/test_index/_mapping
+{"test_index":{"apache_log":{"properties":{"request":{"type":"string","index":"not_analyzed","norms":{"enabled":false},"index_options":"docs"}}}}}
+```
+
+## インデックス管理ツールとプラグイン
+### Curator
+インストール
+
+```bash
+$ sudo pip install elasticsearch-curator
+$ sudo pip install argparse
+```
+バージョンの確認
+
+```bash
+$ curator -v
+curator 1.2.2
+```
+日数を指定した削除
+
+```bash
+$ curator --host localhost delete --older-than 30
+```
+容量を指定した削除
+
+```bash
+$ curator --host localhost delete --disk-space 1024
+```
+日数を指定したクローズ
+
+```bash
+$ curator --host localhost close --older-than 7
+```
+Bloom filter無効化
+
+```bash
+$ curator --host localhost bloom --older-than 2
+```
+日数を指定したオプティマイズ
+
+```bash
+$ curator --host localhost optimize --older-than 2
+```
+
+### プラグイン
+elasticserch-head
+
+```bash
+$ plugin -i mobz/elasticsearch-head
+```
+
+_http://192.168.33.10:9200/_plugin/head/_
+
+![005](https://farm6.staticflickr.com/5596/15264409122_dbaa032458.jpg)
+
+elasticsearch-kopf
+
+```bash
+$ plugin -i lmenezes/elasticsearch-kopf
+```
+
+_http://192.168.33.10:9200/_plugin/kopf/_
+
+![006](https://farm4.staticflickr.com/3874/15264798885_84b358b6ac.jpg)
+
+marvel
+
+```bash
+$ plugin -i elasticsearch/marvel/latest
+$ sudo /etc/init.d/elasticsearch restart
+```
+
+_http://192.168.33.10:9200/_plugin/marvel/_
+
+![007](https://farm4.staticflickr.com/3882/15078228837_0a95309eec.jpg)
+
+
 ## <a name="4">可視化ツールKibanaスタートガイド/a>
 
 # 参照
