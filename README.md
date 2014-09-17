@@ -9,7 +9,8 @@
 | OS X           |10.8.5        |             |
 | vagrant   　　　|1.6.3         |             |
 | fluentd  　　　 |0.10.5         |             |
-| Elasticsearch  　　　|         |             |
+| Elasticsearch  |1.3.2         |             |
+| JDK            |1.7.0         |             |
 | kibana    　　　|         |             |
 
 # 構成
@@ -366,6 +367,79 @@ $ curl -XPUT http://localhost:9200/test_index -d '
 $ curl -XGET http://localhost:9200/test_index/_mapping
 {"test_index":{"apache_log":{"properties":{"request":{"type":"string","index":"not_analyzed","norms":{"enabled":false},"index_options":"docs"}}}}}
 ```
+
+## インデックス管理ツールとプラグイン
+### Curator
+インストール
+
+```bash
+$ sudo pip install elasticsearch-curator
+$ sudo pip install argparse
+```
+バージョンの確認
+
+```bash
+$ curator -v
+curator 1.2.2
+```
+日数を指定した削除
+
+```bash
+$ curator --host localhost delete --older-than 30
+```
+容量を指定した削除
+
+```bash
+$ curator --host localhost delete --disk-space 1024
+```
+日数を指定したクローズ
+
+```bash
+$ curator --host localhost close --older-than 7
+```
+Bloom filter無効化
+
+```bash
+$ curator --host localhost bloom --older-than 2
+```
+日数を指定したオプティマイズ
+
+```bash
+$ curator --host localhost optimize --older-than 2
+```
+
+### プラグイン
+elasticserch-head
+
+```bash
+$ plugin -i mobz/elasticsearch-head
+```
+
+_http://192.168.33.10:9200/_plugin/head/_
+
+![005](https://farm6.staticflickr.com/5596/15264409122_dbaa032458.jpg)
+
+elasticsearch-kopf
+
+```bash
+$ plugin -i lmenezes/elasticsearch-kopf
+```
+
+_http://192.168.33.10:9200/_plugin/kopf/_
+
+![006](https://farm4.staticflickr.com/3874/15264798885_84b358b6ac.jpg)
+
+marvel
+
+```bash
+$ plugin -i elasticsearch/marvel/latest
+$ sudo /etc/init.d/elasticsearch restart
+```
+
+_http://192.168.33.10:9200/_plugin/marvel/_
+
+![007](https://farm4.staticflickr.com/3882/15078228837_0a95309eec.jpg)
+
 
 ## <a name="4">可視化ツールKibanaスタートガイド/a>
 

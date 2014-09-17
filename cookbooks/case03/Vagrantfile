@@ -16,7 +16,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "chef/centos-6.5"
 
-  config.omnibus.chef_version = :latest
+  config.omnibus.chef_version = "11.8.0"
 
   config.berkshelf.enabled = true
 

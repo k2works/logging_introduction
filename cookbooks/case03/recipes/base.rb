@@ -1,4 +1,4 @@
-include_recipe 'java::default'
+include_recipe 'java::oracle'
 include_recipe 'elasticsearch::default'
 include_recipe 'python::default'
 
@@ -15,7 +15,7 @@ group "elasticsearch" do
   append true
 end
 
-directory "/usr/local/elasticsearch-0.90.12/plugins" do
+directory node['elasticsearch']['plugins'] do
   owner "elasticsearch"
   group "elasticsearch"
   mode 00775
