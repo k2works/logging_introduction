@@ -441,7 +441,17 @@ _http://192.168.33.10:9200/_plugin/marvel/_
 ![007](https://farm4.staticflickr.com/3882/15078228837_0a95309eec.jpg)
 
 
-## <a name="4">可視化ツールKibanaスタートガイド/a>
+## <a name="4">可視化ツールKibanaスタートガイド</a>
+サンプルデータのインポート  
+[サーバ/インフラエンジニア養成読本 Kibanaテストデータ](https://github.com/harukasan/kibana-testdata)を参考にローカルでデータを作成したデータを登録する。
+```bash
+$ curl -s -XPOST 192.168.33.10:9200/_bulk --data-binary @events.json > /dev/null
+```
+以下のページをブラウザで指定する。
+
+_http://192.168.33.10/#/dashboard/file/guided.json_
+
+![008](https://farm6.staticflickr.com/5569/15089114529_7fe1046b59.jpg)
 
 # 参照
 + [サーバ/インフラエンジニア養成読本 ログ収集~可視化編 [現場主導のデータ分析環境を構築!] (Software Design plus)](http://www.amazon.co.jp/%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E9%A4%8A%E6%88%90%E8%AA%AD%E6%9C%AC-%E3%83%AD%E3%82%B0%E5%8F%8E%E9%9B%86~%E5%8F%AF%E8%A6%96%E5%8C%96%E7%B7%A8-%E7%8F%BE%E5%A0%B4%E4%B8%BB%E5%B0%8E%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E5%88%86%E6%9E%90%E7%92%B0%E5%A2%83%E3%82%92%E6%A7%8B%E7%AF%89-Software-Design/dp/4774169838/ref=pd_sim_b_3?ie=UTF8&refRID=17896T8SCN28CX9EAY64)
@@ -451,3 +461,5 @@ _http://192.168.33.10:9200/_plugin/marvel/_
 + [lusis/chef-kibana](https://github.com/lusis/chef-kibana)
 + [fluentd-ui](https://github.com/fluent/fluentd-ui)
 + [td-agentのファイル読み込み設定](http://qiita.com/saicologic/items/8879a277a5c8ead1269f)
++ [サーバ/インフラエンジニア養成読本 Kibanaテストデータ](https://github.com/harukasan/kibana-testdata)
++ [Kibana](http://www.elasticsearch.org/overview/kibana/)
