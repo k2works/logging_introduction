@@ -46,12 +46,12 @@ class Chef
           # package automatically initializes database and starts service.
           # ... because that's totally super convenient.
           package new_resource.parsed_package_name do
-            action :install
+            action new_resource.parsed_package_action
+            version new_resource.parsed_package_version
           end
 
           # service
           service 'mysql' do
-            provider Chef::Provider::Service::Upstart
             supports :restart => true
             action [:start, :enable]
           end

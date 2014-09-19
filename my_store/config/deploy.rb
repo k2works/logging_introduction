@@ -3,7 +3,7 @@ lock '3.2.1'
 set :application, 'my_store'
 set :dist_dir_name, 'my_store'
 set :dist_base_dir, '../'
-set :deploy_to, '/home/vagrant'
+set :deploy_to, '/var/www'
 
 task :update do
   run_locally do
