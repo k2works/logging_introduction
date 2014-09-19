@@ -44,7 +44,7 @@ _http://localhost:3000/_
 
 _http://localhost:3000/admin/_
 
-アカウント: pree@example.com  
+アカウント: spree@example.com  
 パスワード: spree123
 
 ## <a name="2">ログ収集ミドルウェアFluentd徹底攻略</a>
