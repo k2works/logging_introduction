@@ -23,6 +23,15 @@ end
 task :deploy => :archive do
   deploy_from = "#{fetch :dist_base_dir}/#{fetch :dist_dir_name}.tgz"
   on roles(:web) do
+    begin
+      old_project_dir = "#{fetch :deploy_to}/#{fetch :dist_dir_name}"
+      if test "[ -d #{old_project_dir} ]"
+        execute "rm -rf #{old_project_dir}"
+      end
+    rescue => e
+      info "No previous release directory exists"
+    end
+
     unless test "[ -d #{deploy_to} ]"
       execute "mkdir -p #{deploy_to}"
     end
@@ -30,6 +39,19 @@ task :deploy => :archive do
     info deploy_to
     upload! deploy_from, deploy_to
     execute "cd #{deploy_to}; tar -zxvf #{fetch :dist_dir_name}.tgz; rm -fr #{fetch :dist_dir_name}.tgz"
+    work_dir = "#{deploy_to}/#{fetch :dist_dir_name}"
+    execute "cd #{work_dir}; bundle"
+    execute "cd #{work_dir}; RAILS_ENV=production rake db:create"
+    execute "cd #{work_dir}; RAILS_ENV=production rake db:migrate"
+    execute "cd #{work_dir}; RAILS_ENV=production rake assets:precompile"
+    execute "cd #{work_dir}; touch tmp/restart.txt"
+=begin
+    execute "cd #{work_dir}; RAILS_ENV=production rake db:setup"
+    execute "cd #{work_dir}; RAILS_ENV=production rake db:spree_sample:load"
+    execute "cd #{work_dir}; bundle exec rake secret > secret"
+    execute "cd #{work_dir}; bash | awk '{print "export SECRET_KEY_BASE="$1}' secret"
+    execute "cd #{work_dir}; rm secret"
+=end
   end
 end
 

@@ -45,3 +45,7 @@ gem 'spree_auth_devise', :git => 'https://github.com/spree/spree_auth_devise.git
 
 gem "capistrano"
 gem "capistrano-ext"
+
+group :production do
+  gem 'mysql2'
+end

@@ -9,3 +9,4 @@ cookbook 'apache2'
 cookbook 'rvm', github: 'fnichol/chef-rvm'
 cookbook "yum-epel"
 cookbook 'mysql'
+cookbook "database"

@@ -29,6 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       chef.binary_path = "/opt/chef/bin"
 
       chef.run_list = %w[
+        recipe[database::mysql]
         recipe[logging-introduction-case01::default]
         recipe[logging-introduction-case01::rvm]
         recipe[logging-introduction-case01::rvm_config]
