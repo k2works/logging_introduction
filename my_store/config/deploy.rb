@@ -49,8 +49,9 @@ task :deploy => :archive do
     execute "cd #{work_dir}; RAILS_ENV=production rake db:setup"
     execute "cd #{work_dir}; RAILS_ENV=production rake db:spree_sample:load"
     execute "cd #{work_dir}; bundle exec rake secret > secret"
-    execute "cd #{work_dir}; bash | awk '{print "export SECRET_KEY_BASE="$1}' secret"
+    execute "cd #{work_dir}; awk '{print "export SECRET_KEY_BASE="$1}' secret >> ~/.bashrc"
     execute "cd #{work_dir}; rm secret"
+    execute "source"
 =end
   end
 end

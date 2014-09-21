@@ -21,7 +21,7 @@
 
 # 詳細
 ## <a name="1">ログ解析からはじめるサービス改善</a>
-サンプルアプリケーションのインストール
+### サンプルアプリケーションのインストール
 ```bash
 $ gem install rails -v 4.1.4
 $ gem install spree
@@ -46,6 +46,18 @@ _http://localhost:3000/admin/_
 
 アカウント: spree@example.com  
 パスワード: spree123
+
+### 本番環境へのデプロイ
+```bash
+$ cd my_store
+$ cap production deploy
+$ ssh vagrant@192.168.33.10
+vagrant@192.168.33.10's password:vagrant
+$ cd /var/www/my_store
+$ RAILS_ENV=production rake db:seed
+$ RAILS_ENV=production rake spree_sample:load
+$ touch tmp/restart.txt
+```
 
 ## <a name="2">ログ収集ミドルウェアFluentd徹底攻略</a>
 ### td-agent動作確認
