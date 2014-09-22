@@ -30,9 +30,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       chef.run_list = %w[
         recipe[logging-introduction-case04::default]
-        recipe[logging-introduction-case04::elasticsearch]
         recipe[logging-introduction-case04::rvm]
         recipe[logging-introduction-case04::rvm_config]
+        recipe[logging-introduction-case04::elasticsearch]
         recipe[logging-introduction-case04::base]
       ]
     end

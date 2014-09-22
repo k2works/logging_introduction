@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# chkconfig: - 85 15
+# description: start/stop fluentd-ui script.
+# processname: fluentd-ui
+
+export PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin
+
+# move to project root directory
+NAME=<%= node['app_service'] %>
+RVM_WRAPPER=<%= node['app_service_rvm_wrapper'] %>
+
+start()
+{
+  echo "start $NAME";
+  su -c "$RVM_WRAPPER/fluentd-ui start"
+}
+
+stop()
+{
+  echo "stop $NAME";
+  su -c "$RVM_WRAPPER/fluentd-ui stop"
+}
+
+status()
+{
+  echo "stop $NAME";
+  su -c "$RVM_WRAPPER/fluentd-ui status"
+}
+
+restart()
+{
+    stop
+    start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status
+    ;;
+  restart)
+    restart
+    ;;
+  *)
+    echo "Syntax Error: release [start|stop|status|restart]"
+    ;;
+esac
+
+exit

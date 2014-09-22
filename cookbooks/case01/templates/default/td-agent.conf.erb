@@ -1,57 +1,76 @@
-####
-## Output descriptions:
-##
+<system>
+ # ログ出力レベルを設定(trace, debug,info,warn,error,fatal)
+ log_level info
+ # 連続した同一エラー出力を抑制する
+ suppress_repeated_stacktrace true
+ # 指定時間内の同一エラー出力を制御する
+ emit_error_log_interval              60s
+ # 起動時に設定ファイルの標準ログ出力を制御する
+ suppress_config_dump             true
+</system>
 
-# Treasure Data (http://www.treasure-data.com/) provides cloud based data
-# analytics platform, which easily stores and processes data from td-agent.
-# FREE plan is also provided.
-# @see http://docs.fluentd.org/articles/http-to-td
-#
-# This section matches events whose tag is td.DATABASE.TABLE
-<match td.*.*>
-  type tdlog
-  apikey
-
-  auto_create_table
-  buffer_type file
-  buffer_path /var/log/td-agent/buffer/td
-</match>
-
-## match tag=debug.** and dump to console
-<match debug.**>
-  type stdout
-</match>
-
-####
-## Source descriptions:
-##
-
-## built-in TCP input
-## @see http://docs.fluentd.org/articles/in_forward
 <source>
-  type forward
-  port 24224
-  bind 0.0.0.0
+  # プラグインを指定
+  type tail
+  # 読み込むログファイルを指定
+  path /var/log/messages
+  # タグ指定
+  ## Fluentdプラグイン間でメッセージをルーティングする際の識別に利用
+  tag system.messages
+  # ログフォーマット定義
+  ## 正規表現,apache,apache2,nginx,syslog,tsv,csv,ltsv,json,
+  ## none(行全体をmessageキーの値として取り込む場合)のいづれかを指定
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1410421801.pos
 </source>
 
-## built-in UNIX socket input
-#<source>
-#  type unix
-#</source>
-
-
-## live debugging agent
 <source>
-  type debug_agent
-  bind 127.0.0.1
-  port 24230
+  type tail
+  path /var/log/secure
+  tag system.secure
+  format syslog
+  time_format %b %d %H:%M:%S
+  pos_file /tmp/fluentd--1411353864.pos
 </source>
 
-<match log.**>
+<match system.*>
+  # fluentd-plugin-elasticsearchを利用します
+  type elasticsearch
+  # Kibanaで利用するためにindexの形式を整えます
+  logstash_format true
+  # indexのprefixを指定します
+  logstash_prefix demo-log
+  # 転送先のElasticsearchを指定します
+  hosts 192.168.33.20:9200
+  # Elasticsearchに書き込む際、このドキュメントのtypeを指定します
+  type_name system-log
+  # bufferの設定です。メモリバッファを利用します
+  buffer_type memory
+  # チャンクの大きさを1MBとします
+  buffer_chunk_limit 1m
+  # チャンクキューの最大サイズを128とします
+  buffer_queue_limit 128
+  # 2秒ごとにバッファをflushします。すなわち、2秒ごとにElasticsearchへの書き込みリクエストが発行されます
+  flush_interval 2s
+  # flushが失敗した場合、最大17回試します
+  retry_limit 17
+</match>
+
+<source>
+  type tail
+  path /var/log/httpd/access.log
+  tag application.access
+  format apache2
+  time_format %d/%b/%Y:%H:%M:%S %z
+  pos_file /tmp/fluentd--1411361102.pos
+</source>
+
+<match application.*>
   type elasticsearch
   logstash_format true
   logstash_prefix demo-log
-  hosts localhost:9200
+  hosts 192.168.33.20:9200
   type_name application-log
   buffer_type memory
   buffer_chunk_limit 1m
@@ -59,3 +78,11 @@
   flush_interval 2s
   retry_limit 17
 </match>
+
+<source>
+  type tail
+  path /var/log/httpd/error.log
+  tag application.error
+  format /^(?<head>[^ ]*) (?<time>[^ ]* [^ ]*) (?<path>[^ ]* [^ ]*) (?<tail>[^ ]*) (?<message>.*)$/
+  pos_file /tmp/fluentd--1411380936.pos
+</source>

@@ -1,0 +1,11 @@
+source "https://api.berkshelf.com"
+
+metadata
+
+cookbook 'td-agent', git: 'https://github.com/treasure-data/chef-td-agent.git'
+cookbook 'elasticsearch', git: 'https://github.com/elasticsearch/cookbook-elasticsearch.git'
+cookbook 'kibana', git: 'https://github.com/lusis/chef-kibana.git'
+cookbook 'apache2'
+cookbook 'rvm', github: 'fnichol/chef-rvm'
+cookbook "yum-epel"
+cookbook 'mysql'

@@ -1,0 +1,17 @@
+LoadModule passenger_module <%= @params[:passenger_module] %>
+<IfModule mod_passenger.c>
+  PassengerRoot <%= @params[:passenger_root_path] %>
+  PassengerDefaultRuby <%= @params[:passenger_default_ruby] %>
+</IfModule>
+RackEnv <%= @params[:rails_env] %>
+
+<VirtualHost *:80>
+   ServerName <%= @params[:server_name] %>
+   DocumentRoot  <%= @params[:docroot] %>
+   ErrorLog /var/log/httpd/error.log
+   TransferLog /var/log/httpd/access.log
+   <Directory <%= @params[:docroot] %>>
+      Allow from all
+      Options -MultiViews
+   </Directory>
+</VirtualHost>
