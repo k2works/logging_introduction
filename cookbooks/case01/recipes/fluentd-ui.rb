@@ -1,7 +1,7 @@
 app_service = node['app_service']
 
 rvm_gem "fluentd-ui" do
-  ruby_string "1.9.3"
+  ruby_string "#{node['rvm']['app_version']}@#{node['rvm']['app_gemset']}"
   action   :install
 end
 

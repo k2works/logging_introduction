@@ -9,6 +9,7 @@ Spree.config do |config|
   # Example:
   # Uncomment to stop tracking inventory levels in the application
   # config.track_inventory_levels = false
+  config.allow_ssl_in_production = false
 end
 
 Spree.user_class = "Spree::LegacyUser"

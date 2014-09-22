@@ -36,3 +36,10 @@ template "/etc/td-agent/td-agent.conf" do
   group 'root'
   mode "0755"
 end
+
+# プラグインインストール
+execute "fluent-plugin-elasticsearch" do
+    user "vagrant"
+    command "sudo /usr/lib64/fluent/ruby/bin/fluent-gem install fluent-plugin-elasticsearch"
+    action :run
+end

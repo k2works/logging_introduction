@@ -47,6 +47,27 @@ _http://localhost:3000/admin/_
 アカウント: spree@example.com  
 パスワード: spree123
 
+### サンプルシステムのプロビジョニング
+```bash
+$ cd cookbooks/case01/
+$ vagrant up
+```
+
+```bash
+The following SSH command responded with a non-zero exit status.
+Vagrant assumes that this means the command failed!
+```
+上記のメッセージが出てプロビジョニングに失敗した場合は以下の作業でネームサーバを更新する。
+
+```bash
+$ vagrant ssh host1
+$ echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
+$ exit
+$ vagrant provision host1
+・・・
+$ vagrant up host2
+```
+
 ### 本番環境へのデプロイ
 ```bash
 $ cd my_store
@@ -58,6 +79,27 @@ $ RAILS_ENV=production rake db:seed
 $ RAILS_ENV=production rake spree_sample:load
 $ touch tmp/restart.txt
 ```
+
+### サンプルシステム構成
+| サーバ               | IPアドレス       | 備考         |
+|:---------------     |:-------------   |:------------|
+| アプリケーションサーバ  |192.168.33.10   |             |
+| ロギングサーバ  |192.168.33.20   |             |
+
+ECサイト  
+_http://192.168.33.10_
+
+ECサイト管理画面  
+_http://192.168.33.10/admin_
+
+Fluentd-ui  
+_http://192.168.33.10:9292_
+
+Elasticsearch  
+_http://192.168.33.20:9200/_plugin/kopf_
+
+Kibana  
+_http://192.168.33.20/#/dashboard/file/guided.json_
 
 ## <a name="2">ログ収集ミドルウェアFluentd徹底攻略</a>
 ### td-agent動作確認
@@ -495,6 +537,7 @@ _http://192.168.33.10/#/dashboard/file/guided.json_
 + [サーバ/インフラエンジニア養成読本 ログ収集~可視化編 [現場主導のデータ分析環境を構築!] (Software Design plus)](http://www.amazon.co.jp/%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E9%A4%8A%E6%88%90%E8%AA%AD%E6%9C%AC-%E3%83%AD%E3%82%B0%E5%8F%8E%E9%9B%86~%E5%8F%AF%E8%A6%96%E5%8C%96%E7%B7%A8-%E7%8F%BE%E5%A0%B4%E4%B8%BB%E5%B0%8E%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E5%88%86%E6%9E%90%E7%92%B0%E5%A2%83%E3%82%92%E6%A7%8B%E7%AF%89-Software-Design/dp/4774169838/ref=pd_sim_b_3?ie=UTF8&refRID=17896T8SCN28CX9EAY64)
 + [gihyo coffee sample](https://github.com/suzuken/gihyo-coffee-sample)
 + [spree/spree](https://github.com/spree/spree)
++ [Spree: Turning off SSL redirects /admin back to site](http://stackoverflow.com/questions/11549901/spree-turning-off-ssl-redirects-admin-back-to-site)
 + [Phusion Passenger users guide, Apache version](https://www.phusionpassenger.com/documentation/Users%20guide%20Apache.html#_installing_or_upgrading_on_red_hat_fedora_centos_or_scientificlinux)
 + [Asset Path Error in Spree / Ruby on Rails](http://stackoverflow.com/questions/25633822/asset-path-error-in-spree-ruby-on-rails)
 + [treasure-data/chef-td-agent](https://github.com/treasure-data/chef-td-agent)

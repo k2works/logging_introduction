@@ -35,6 +35,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         recipe[logging-introduction-case01::rvm_config]
         recipe[logging-introduction-case01::app]
         recipe[logging-introduction-case01::app_config]
+        recipe[logging-introduction-case01::td-agent]
+        recipe[logging-introduction-case01::fluentd-ui]
+        recipe[logging-introduction-case01::fluentd_config]
       ]
 
 =begin
@@ -63,6 +66,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       chef.run_list = %w[
         recipe[logging-introduction-case01::default]
         recipe[logging-introduction-case01::elasticsearch]
+        recipe[logging-introduction-case01::elasticsearch_config]
         recipe[logging-introduction-case01::kibana]
       ]
     end
